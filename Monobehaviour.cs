@@ -14,15 +14,18 @@ namespace QRScannerBL
         private int W;
         private int H;
         private Color32[] pixels;
+        private Camera cam;
 
         public void Awake()
         {
+            cam = gameObject.GetComponent<Camera>();
             if (CamText == null)
             {
-                CamText = gameObject.GetComponent<Camera>().targetTexture;
-                W = CamText.width;
-                H = CamText.height;
+                MelonLogger.Msg("CamText is NulL");
+                CamText = cam.targetTexture;
             }
+            W = CamText.width;
+            H = CamText.height;
         }
 
         public void ScanOpen()
@@ -34,7 +37,8 @@ namespace QRScannerBL
         {
             string result = "";
             Texture2D tex = new Texture2D(W, H);
-            tex.ReadPixels(gameObject.GetComponent<Camera>().rect, W, H);
+            RenderTexture.active = CamText;
+            tex.ReadPixels(new Rect(0, 0, W, H), 0, 0);
             tex.Apply();
             pixels = tex.GetPixels32();
             var barcodeReader = new BarcodeReader { AutoRotate = true, Options = new ZXing.Common.DecodingOptions { TryHarder = false} };
